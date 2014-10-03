@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	   <meta charset="UTF-8">
+		<link rel='stylesheet' type='text/css' href='help.css'>
+		<title>Tab Options Help</title>
+	</head>
+	<body id='helpBody'>
+		<h1>Tab Options Help</h1>
+		<h2>Editing the Blacklist</h2>
+		
+		<p>
+			The blacklist is a list of URLs or URL patterns (<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions" target="_blank">regular expressions</a>). If the URL of a web page you visit matches one of the entries in the blacklist, Tab Options will ignore keypresses on that page. This is useful for preventing conflicts on web pages that use keyboard shortcuts of their own.</p>
+		<p>
+			When adding entries to the blacklist, place each entry on its own line. Press Enter to start a new line. Do not type any spaces at the beginning or end of a line.</p>
+		<p>
+			Each blacklist entry will match any URL that contains that entry. For example, if you add "http://www.google.com/", it will match not only "http://www.google.com/" but also "http://www.google.com/search", "http://www.google.com/images", and every other URL that contains the entry.</p>
+		<p>
+			Blacklist entries that are regular expressions will match any URL that matches the expression.</p>
+		<p>
+			An entry does not have to match the beginning of a URL; it can match any part of the URL. For example, you could add "google" to the blacklist, and that would match every Google web page. But be careful, since it would also match a URL like "http://en.wikipedia.org/wiki/google", which may not be what you want.</p>
+		
+		<div id='footer'>
+			<a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/">
+				<img alt="Creative Commons License" src="http://creativecommons.org/images/public/somerights20.png">
+			</a><br>
+			2013 Canisbos Computing
+		</div>
+	</body>
+</html>

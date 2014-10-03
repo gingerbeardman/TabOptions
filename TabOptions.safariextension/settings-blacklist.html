@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+	<head>
+      <meta charset="UTF-8">
+		<script type="text/javascript" src="settings.js"></script>
+		<link rel="stylesheet" type="text/css" href="settings.css">
+		<title>Tab Options</title>
+	</head>
+	<body onload="initializeBlacklist()">
+		<h1>Tab Options<a id="helpLink" class="link" href="help-blacklist.html" target="cksse_HelpWin">Help</a></h1>
+		<h2>Blacklist</h2>
+		<ul class="explanation">
+			<li>Enter URLs or URL patterns (regular expressions) of sites you want Tab Options to ignore.</li>
+			<li>Enter one URL or pattern per line.</li>
+			<li>See <a class="link" href="help-blacklist.html" target="cksse_HelpWin">Help</a> for details.</li>
+		</ul>
+		<div id="blMainDiv">
+			<div>
+				<textarea id="editBox" onblur="handleEditBoxBlur()" onkeydown="handleEditBoxKeyDown()" 
+					onkeypress="handleEditBoxKeyPress()"></textarea>
+			</div>
+			<div>
+				<button id="saveButton" class="bigButton" onclick="saveBlackList()" disabled=true>Save</button>
+				<button id="cancelButton" class="bigButton" onclick="cancelPlaceEdits()" disabled=true>Cancel</button>
+			</div>
+		</div>
+	</body>
+</html>

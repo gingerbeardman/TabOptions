@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<script type="text/javascript" src="settings.js"></script>
+		<link rel="stylesheet" type="text/css" href="settings.css">
+		<title>Tab Options</title>
+	</head>
+	<body onload="initializePlaces()">
+		<h1>Tab Options<a id="helpLink" class="link" href="help-places.html" target="cksse_HelpWin">Help</a></h1>
+		<h2>Places</h2>
+		<ul class="explanation">
+			<li>Assign hotkeys to URLs you visit often. Typing a hotkey loads the URL.</li>
+			<li>Changes to hotkeys take effect immediately. Other changes take effect when you click Save.</li>
+			<li>The <strong>NT</strong> checkbox determines whether the place will open in a new tab.</li>
+		</ul>
+		<div id="placesDiv">
+			<p id="tableHeaders">
+				<span id="hkHeader"><a class="heada" title="Sort places by hotkey" 
+					href="javascript:sortPlacesBy("hotkey")">Hotkey</a></span>
+				<span id="nameHeader"><a class="heada" title="Sort places by name" 
+					href="javascript:sortPlacesBy("name")">Name</a></span>
+				<span id="urlHeader"><a class="heada" title="Sort places by URL" 
+					href="javascript:sortPlacesBy("url")">URL</a></span>
+				<span id="targHeader">NT</span>
+			</p>
+			<div id="placesTable"></div>
+			<div id="buttonsDiv">
+				<button type="button" class="sButton" onclick="addNewPlaceForm()">Add Place</button>
+				<button type="button" class="sButton" onclick="removeAllPlaces()">Remove All Places</button>
+				<button type="button" class="sButton" onclick="pbExport()" id="backupButton">Back Up To Cloud</button>
+				<button type="button" class="sButton" onclick="pbImport()" id="restoreButton">Restore From Cloud</button>
+			</div>
+			<div style="margin-top:10px">
+				<label style="margin-left:10px">Service to use for places backup/restore:</label>
+				<select id="bsSelect" onchange="setBackupSvc()">
+					<option>Delicious</option>
+					<option>Pinboard</option>
+				</select>
+			</div>
+		</div>
+	</body>
+</html>

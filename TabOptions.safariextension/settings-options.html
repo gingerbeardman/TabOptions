@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<script type="text/javascript" src="settings.js"></script>
+		<link rel='stylesheet' type='text/css' href='settings.css'>
+		<title>Tab Options</title>
+	</head>
+	<body onload="initializeOptions()">
+		<h1>Tab Options<a id="helpLink" class="link" href="help-options.html" target="cksse_HelpWin">Help</a></h1>
+		<h2>Options</h2>
+		<ul class="explanation">
+			<li>In Safari 5.1 and newer, all settings, except for Close Last Tab, apply regardless of how 
+				the relevant operation is executed.</li>
+			<li>In Safari 5.0.x, all settings apply only when you use a Tab Options hotkey.</li>
+		</ul>
+		<div class="row">
+			<div class="optionDiv">
+				<h4 class="optionLabel">New Tab Position</h4>
+				<p class="optionBlurb">Open new tabs:</p>
+				<form id="ntpForm" class="optionForm">
+					<label><input type="radio" name="newFgTabPosition" value="-1"> in the default position</label><br>
+					<label><input type="radio" name="newFgTabPosition" value="0"> left of current tab</label><br>
+					<label><input type="radio" name="newFgTabPosition" value="1"> right of current tab</label><br>
+					<label><input type="radio" name="newFgTabPosition" value="2"> at end of tab bar</label><br>
+					<label><input type="radio" name="newFgTabPosition" value="3"> at start of tab bar</label>
+				</form>
+			</div>
+			<div class="optionDiv">
+				<h4 class="optionLabel">New Background Tab Position</h4>
+				<p class="optionBlurb">Open new background tabs:</p>
+				<form id="nbtpForm" class="optionForm">
+					<label><input type="radio" name="newBgTabPosition" value="-1"> in the default position</label><br>
+					<label><input type="radio" name="newBgTabPosition" value="0"> left of current tab</label><br>
+					<label><input type="radio" name="newBgTabPosition" value="1"> right of current tab</label><br>
+					<label><input type="radio" name="newBgTabPosition" value="2"> at end of tab bar</label><br>
+					<label><input type="radio" name="newBgTabPosition" value="3"> at start of tab bar</label>
+				</form>
+			</div>
+		</div>
+		<div class="row">
+			<div class="optionDiv">
+				<h4 class="optionLabel">Focus On Close</h4>
+				<p class="optionBlurb">When closing a tab, focus:</p>
+				<form id="focForm" class="optionForm">
+					<label><input type="radio" name="focusTabOnClose" value="2"> the last focused tab</label><br>
+					<label><input type="radio" name="focusTabOnClose" value="1"> the right tab</label><br>
+					<label><input type="radio" name="focusTabOnClose" value="0"> the left tab</label><br>
+					<label><input type="radio" name="focusTabOnClose" value="-1"> let Safari decide</label><br>
+				</form>
+			</div>
+			<div class="optionDiv">
+				<h4 class="optionLabel">Close Last Tab</h4>
+				<p class="optionBlurb">When closing the last tab of a window by hotkey:</p>
+				<form id="pltForm" class="optionForm">
+					<label><input type="radio" name="preserveLastTab" value="0"> close the window</label><br>
+					<label><input type="radio" name="preserveLastTab" value="1"> make the tab empty</label><br>
+					<label><input type="radio" name="preserveLastTab" value="2"> load this URL in it:</label><br>
+					<input type="text" name="homeUrl">
+				</form>
+			</div>
+		</div>
+	</body>
+</html>

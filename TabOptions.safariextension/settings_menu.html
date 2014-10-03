@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script type="text/javascript" charset="utf-8">
+			function loadPage(href) {
+				parent.contentFrame.location.href = href;
+				document.querySelector('.sfMenuItem-selected').className = 'sfMenuItem-unselected';
+				event.target.className = 'sfMenuItem-selected';
+			}
+		</script>
+		<link rel="stylesheet" type="text/css" href="settings.css">
+		<title>PopSearch Settings</title>
+	</head>
+	<body id="sfMenu">
+		<div class="sfMenuItem-selected"   onclick="loadPage('settings-options.html')">Options</div>
+		<div class="sfMenuItem-unselected" onclick="loadPage('settings-hotkeys.html')">Hotkeys</div>
+		<div class="sfMenuItem-unselected" onclick="loadPage('settings-places.html')">Places</div>
+		<div class="sfMenuItem-unselected" onclick="loadPage('settings-blacklist.html')">Blacklist</div>
+	</body>
+</html>

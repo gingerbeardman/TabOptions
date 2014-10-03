@@ -1,0 +1,233 @@
+body {
+	width: auto;
+	margin: 20px 20px 40px;
+	font: 13px Helvetica;
+}
+body#sfMenu {
+	width: 100px;
+	margin: 0px;
+	padding: 0px;
+	background-color: #EEEEEE;
+	font: 15px Helvetica;
+}
+.sfMenuItem-unselected {
+	width: auto;
+	background-color: #DEE4EA;
+	border-bottom: 1px solid silver;
+	padding: 20px;
+	cursor: pointer;
+	font-weight: normal;
+}
+.sfMenuItem-selected {
+	width: auto;
+	background-color: white;
+	border-bottom: 1px solid silver;
+	padding: 20px;
+	cursor: pointer;
+	font-weight: bold;
+}
+h1 {
+	border-bottom: 1px solid gray;
+	padding-bottom: 0.5em;
+	font-size: 18px;
+}
+h2 {
+	margin-bottom: 32px;
+}
+#helpLink {
+	position: relative;
+	top: 0.5em;
+	float: right;
+	margin-right: 0.5em;
+	font-size: 14px;
+}
+.statusMsg {
+	position: relative;
+	top: 7px;
+	vertical-align: top;
+	color: red;
+}
+.bigButton {
+	width: 120px;
+	margin: 5px;
+	padding: 4px 8px;
+}
+.hidden {
+	display: none;
+}
+[name="homeUrl"] {
+	width: 220px;
+	margin-left: 20px;
+	border: 1px solid silver;
+	padding: 3px 5px 4px;
+}
+[name="homeUrl"][disabled] {
+	color: darkGray;
+}
+.optionDiv {
+	display: inline-block;
+	width: 300px;
+	margin-bottom: 3em;
+	vertical-align: top;
+}
+.optionLabel {
+	margin-top: 5px;
+	margin-bottom: 0;
+}
+.optionBlurb {
+	margin-left: 1em;
+	margin-bottom: 0.5em;
+}
+.optionForm {
+	margin: 0.5em 0 0.5em 2em;
+}
+.actionLabel {
+	margin-bottom: 0.5em;
+}
+.actionLabel.last {
+	margin-top: 1em;
+	border-top: 1px solid gray;
+	padding-top: 0.5em;
+}
+.actionLabel.disabled {
+	color: #888;
+}
+.hkForm > *,
+.placeForm > * {
+	vertical-align: top;
+}
+.hkWrapper {
+	position: relative;
+}
+.hkInput {
+	position: relative;
+	width: 9em;
+	border: 1px solid silver;
+	padding: 3px 5px;
+	font: 15px Lucida Grande;
+}
+.hkReset {
+	margin-left: 20px;
+}
+.cButton {
+	display: inline-block;
+	position: absolute;
+	right: 3px;
+	top: 7px;
+	z-index: 10;
+	width: 16px;
+	height: 16px;
+	background: url(clear.png) no-repeat;
+	cursor: pointer;
+	visibility: hidden;
+}
+.sButton {
+	margin-left: 5px;
+	margin-right: 5px;
+	padding: 5px 8px;
+	font-size: 13px;
+}
+.inputLabel {
+}
+.explanation {
+	max-width: 600px;
+	margin-bottom: 24px;
+}
+.explanation li {
+	margin-bottom: 4px
+}
+#tableHeaders {
+	height: 16px;
+	margin-bottom: 0px;
+	margin-left: 2px
+	font-weight: bold;
+}
+#tableHeaders span {
+	display: inline-block;
+	margin: 0 3px;
+}
+#hkHeader {
+	width: 100px;
+}
+#nameHeader {
+	width: 150px;
+}
+#urlHeader {
+	width: 300px;
+}
+#targHeader {
+	color: #666;
+}
+.heada {
+	text-decoration: none;
+	color: #4682B4;
+}
+.placeForm {
+	margin-bottom: 5px;
+}
+.textInput {
+	box-sizing: border-box;
+	margin-left: 5px;
+	margin-right: 5px;
+	border: 1px solid silver;
+	padding: 3px 5px;
+	font: 15px Lucida Grande;
+}
+.phkInput {
+	width: 100px;
+}
+.nameInput {
+	width: 150px;
+}
+.urlInput {
+	width: 300px;
+}
+.targInput {
+	position: relative;
+	top: 5px;
+	margin-left: 5px;
+	margin-right: 5px;
+}
+#buttonsDiv {
+	margin-top: 12px;
+}
+#bsSelectDiv {
+	margin-top: 10px;
+	font-size: 12px;
+}
+#blMainDiv {
+	margin: 0px;
+	padding: 0px;
+}
+#editBox {
+	width: 80%;
+	height: 320px;
+	font-family: Menlo, Consolas, monospace;
+	font-size: 12px;
+}
+#exImPIBox {
+	position: fixed;
+	z-index: 2147483647;
+	margin: 0px;
+	padding: 0px;
+	background: -webkit-gradient(
+		linear, 0% 0%, 0% 100%, from(white), to(#F4F4F4)
+	);
+	text-align: center;
+	border-radius: 5px;
+	border: 1px solid #444;
+	color: black;
+}
+#exImPIIcon {
+	display: block;
+	position: absolute;
+	top: 12px;
+	border-style: none;
+}
+#exImPIText {
+	display: block;
+	position: absolute;
+	width: 100%;
+	top: 48px;
+	font: normal 13px "Helvetica Neue";
+}

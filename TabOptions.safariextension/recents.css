@@ -1,0 +1,67 @@
+html {
+	height: 100%;
+}
+body {
+	height: 100%;
+	background-color: #fff;
+	margin: 0;
+	font-family: 'Lucida Grande', sans-serif !important;
+	font-size: 13px;
+}
+#titleBar {
+	box-sizing: border-box;
+	height: 24px;
+	border-top: 1px solid #fafafa;
+	border-bottom: 1px solid #666;
+	padding: 2px;
+	background: -webkit-gradient(
+		linear, 0% 0%, 0% 100%,
+		from(#F0F0F0), to(#C8C8C8)
+	);
+	text-shadow: #E8E8E8 1px 1px 0px;
+	text-align: center;
+}
+.explain {
+	margin: 0 0 24px;
+	font-size: 12px;
+}
+#main {
+	margin-top: 40px;
+	text-align: center;
+}
+ol {
+	display: inline-block;
+	list-style-type: none;
+	margin: 20px;
+	padding: 0;
+}
+li {
+	display: inline-block;
+	margin: 8px;
+	cursor: pointer;
+}
+img {
+	display: block;
+	height: 128px;
+	outline: 1px solid #ccc;
+}
+.title, .url {
+	display: block;
+	width: 180px;
+	margin-top: 8px;
+	white-space: nowrap;
+	overflow-x: hidden;
+	text-overflow: ellipsis;
+	text-align: center;
+	font-size: 12px;
+}
+.title {
+	font-weight: bold;
+} li:hover .title {
+	display: none;
+}
+.url {
+	display: none;
+} li:hover .url {
+	display: block;
+}

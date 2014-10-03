@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	   <meta charset="UTF-8">
+		<link rel='stylesheet' type='text/css' href='help.css'>
+		<title>Tab Options Help</title>
+	</head>
+	<body id='helpBody'>
+		<h1>Tab Options Help</h1>
+		<h2>Adding places</h2>
+		
+		<p>
+			Places are arbitrary web addresses that Tab Options will open for you in a new tab when you type their corresponding hotkeys. A place can also be a bookmarklet (a special kind of bookmark that runs a short piece of JavaScript code when you use it); in this case, Tab Options will load the bookmarklet in the current tab.</p>
+		<p>
+			To add a place, click the <strong>Add Place</strong> button at the bottom of the places list. A new row will appear at the bottom of the list. Enter a hotkey, a name (optional), and a URL or bookmarklet, then press Enter or click <strong>Save</strong>.</p>
+		<p>
+			You can sort the places list by clicking one of the places list headers. For example, if you click <strong>Name</strong>, the list will be sorted by place name.</p>
+		<p>
+			Note: If you assign the same hotkey to more than one place, Tab Options will only open the place that occurs first in the list.</p>
+		
+		<h2>Backing up your places to (and restoring them from) the cloud</h2>
+		<p>
+			If you have an account with either <a href='http://www.delicious.com/' target='_blank'>Delicious</a> or <a href='http://pinboard.in/' target='_blank'>Pinboard</a>, you can back up your Tab Options places to the cloud bookmarking service, where they will be saved as bookmarks tagged "Tabkeys". Once you've done that, if you ever need to recreate your places list, either on the same computer or on another, you can do so by simply restoring your Tabkeys-tagged bookmarks from the cloud.</p>
+		<p>
+			The first time you back up your places, the bookmarking service will create a bookmark tagged "Tabkeys" for each Tab Options place that has a unique URL. Thereafter, whenever you back up again, the service will add a bookmark for each new place, as long as its URL is unique among your bookmarks on the service.</p>
+		<p>
+			<strong>Note</strong>: Due to a limitation of these bookmarking services, if you have two or more Tab Options places with the same URL, only one of them will be added as a bookmark on the service.</p>
+		<p>
+			When you restore your places from the bookmarking service, Tab Options will create a new place for any bookmark whose hotkey (not URL) is different from the hotkeys of all existing places. Even if a bookmark has the same name and/or URL as an existing place, as long as its hotkey is different, Tab Options will create a new place for it. Tab Options will never delete a place as a result of restoring from your bookmarking service.</p>
+		<p>
+			<strong>Note</strong>: The first time you back up your places to a particular service, Safari will prompt you to enter your username and password for that service. You can choose to let Safari remember this information for you so you don't have to enter it again the next time you back up or restore your places. If you enter an incorrect username or password, you will need to restart Safari before trying again.</p>
+		
+		<div id='footer'>
+			<a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/">
+				<img alt="Creative Commons License" src="http://creativecommons.org/images/public/somerights20.png">
+			</a><br>
+			2013 Canisbos Computing
+		</div>
+	</body>
+</html>
