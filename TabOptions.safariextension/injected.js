@@ -17,7 +17,10 @@
 	function handleKeydown(e) {
 		var hid = getMatchingHotkeyAction(e);
 		if (hid && okayToDoHotkey(e)) {
-			e.preventDefault(); e.stopPropagation();
+			e.preventDefault();
+			e.stopPropagation();
+			window.addEventListener('keypress', stopNextEvent, true);
+			window.addEventListener('keyup', stopNextEvent, true);
 			safari.self.tab.dispatchMessage('handleHotkey', {
 				hid  : hid,
 				tv   : window.toolbar.visible,
@@ -34,7 +37,7 @@
 			break;
 			case 'receiveAllHotkeys': 
 				hotkeys = msg.message;
-				window.addEventListener('keydown', handleKeydown, false);
+				window.addEventListener('keydown', handleKeydown, true);
 				window.addEventListener('mousedown', handleMousedown, false);
 			break;
 			case 'reload': 
@@ -63,10 +66,10 @@
 		}
 	}
 	function handleMousedown(mde) {
-		window.removeEventListener('keydown', handleKeydown, false);
+		window.removeEventListener('keydown', handleKeydown, true);
 		window.addEventListener('mouseup', function onMouseup(mue) {
 			if (mue.button === mde.button) {
-				window.addEventListener('keydown', handleKeydown, false);
+				window.addEventListener('keydown', handleKeydown, true);
 				window.removeEventListener('mouseup', onMouseup, false);
 			}
 		}, false);
@@ -107,6 +110,11 @@
 			window.removeEventListener('click', requestClose, false);
 		}, false);
 	}
+	function stopNextEvent(e) {
+		e.preventDefault();
+		e.stopPropagation();
+		window.removeEventListener(e.type, stopNextEvent, true);
+	}
 	
 	if (window.scriptLoaded) {
 		return;
@@ -114,7 +122,7 @@
 	var settings = {};
 	// var keyListenerPaused = false;
 	
-	if (!window.name.match(/^cks/)) {
+	if (!/^cks/.test(window.name)) {
 		safari.self.addEventListener('message', handleMessage, false);
 		if (safari.self instanceof SafariContentReader) {
 			setTimeout(function () {
