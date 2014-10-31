@@ -467,7 +467,7 @@ function handleNavigate(event) {
 	});
 }
 function handleOpen(event) {
-	if (event.target instanceof SafariBrowserWindow) {
+	if (event.target instanceof SafariBrowserWindow && !tabTimer) {
 		handleOpenWin(event.target);
 	} else
 	if (event.target instanceof SafariBrowserTab) {
@@ -475,6 +475,8 @@ function handleOpen(event) {
 	}
 }
 function handleOpenTab(tab) {
+	clearTimeout(tabTimer);
+	tabTimer = setTimeout(function () { tabTimer = null }, 99);
 	tab.id = tabId++;
 	openTabs.push(tab);
 	tab.addEventListener('navigate', handleNavigate, false);
@@ -805,6 +807,7 @@ var closedTabsWithImages = [];
 var tabImages = {};
 var winId = 0;
 var tabId = 0;
+var tabTimer = null;
 
 initializeSettings();
 deleteTabImages();
