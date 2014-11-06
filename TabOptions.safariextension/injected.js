@@ -75,7 +75,7 @@
 		}, false);
 	}
 	function okayToDoHotkey(e) {
-		if (e.metaKey || e.ctrlKey)
+		if ((e.metaKey || e.ctrlKey) && (e.keyCode < 37 || e.keyCode > 40))
 			return true;
 		var forbiddenTargets = ['INPUT','BUTTON','SELECT','TEXTAREA'];
 		var elementIsForbidden = (forbiddenTargets.indexOf(e.target.nodeName) > -1);

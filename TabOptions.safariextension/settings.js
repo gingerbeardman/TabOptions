@@ -162,6 +162,10 @@ function getHotkeyInputValue(hotkey) {
 		(hotkey.keyCode ==  8) ? 'Delete' :
 		(hotkey.keyCode ==  9) ? 'Tab'    :
 		(hotkey.keyCode == 32) ? 'Space'  :
+		(hotkey.keyCode == 37) ? 'Left'   :
+		(hotkey.keyCode == 38) ? 'Up'     :
+		(hotkey.keyCode == 39) ? 'Right'  :
+		(hotkey.keyCode == 40) ? 'Down'   :
 		(hotkey.keyCode == 46) ? 'Del'    :
 		String.fromCharCode(hotkey.keyCode);
 	if (!/[0-9A-Z]/.test(cStr))
@@ -272,6 +276,13 @@ function handleHotKeyDown(e) {
 		case 39:	// right
 		case 40:	// down
 			e.preventDefault();
+			if (e.ctrlKey || e.altKey) {
+				if (e.target.name == 'hkInput') {
+					savePlaceHotkey(e);
+				} else {
+					saveHotkey(e);
+				}
+			}
 		break;
 		case 16:	// shift
 		case 17:	// ctrl
@@ -449,14 +460,14 @@ function insertHotkeyForms(actionNames) {
 		<button type="button" class="sButton">Reset to Default</button>\
 		<span class="statusMsg"></span>\
 	';
-	var h4, form;
+	var h4, form, hkDiv = document.getElementById('hotkeysDiv');
 	for (var key in actionNames) {
 		form = document.createElement('form');
 		form.className = 'hkForm';
 		form.id = key;
 		form.innerHTML = formContents;
 		form.querySelector('h4').textContent = actionNames[key];
-		document.getElementById('hotkeysDiv').appendChild(form);
+		hkDiv.appendChild(form);
 	}
 	addInputEventListeners();
 }
