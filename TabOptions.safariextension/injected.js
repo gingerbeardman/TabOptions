@@ -6,24 +6,30 @@
 		var hotkeyMatchesEvent = function (prop) {
 			return this[prop] == keyEvt[prop];
 		}
-		for (var h, m, i = 0; i < hotkeys.length; i++) {
-			h = hotkeys[i];
-			if (KEYPROPS.every(hotkeyMatchesEvent, h)) {
-				return { action: h.action, params: null };
+		for (var hk, i = 0; i < hotkeys.length; i++) {
+			hk = hotkeys[i];
+			if (KEYPROPS.every(hotkeyMatchesEvent, hk)) {
+				return { action: hk.action, params: null };
 			}
 		}
 		if (settings.mapNumbersToTabs) {
-			if (keyEvt.keyCode >= 48 && keyEvt.keyCode <= 57) {
-				if (MODIFIERS.every(hotkeyMatchesEvent, settings.mntModifiers)) {
-					return { action: 'nthTab', num: keyEvt.keyCode - 49 }
+			var code = keyEvt.keyCode;
+			if (MODIFIERS.every(hotkeyMatchesEvent, settings.mntModifiers)) {
+				if (code >= 48 && code <= 57) {
+					return { action: 'nthTab', num: code - 49 }
+				}
+				else if (code >= 96 && code <= 105) {
+					return { action: 'nthTab', num: code - 97 }
 				}
 			}
 		}
 		return null;
 	}
 	function handleKeydown(e) {
+		if (!okayToDoHotkey(e))
+			return;
 		var match = getMatchingHotkeyAction(e);
-		if (match && okayToDoHotkey(e)) {
+		if (match) {
 			e.preventDefault();
 			e.stopPropagation();
 			window.addEventListener('keypress', stopNextEvent, true);
@@ -84,10 +90,11 @@
 	function okayToDoHotkey(e) {
 		if ((e.metaKey || e.ctrlKey) && (e.keyCode < 37 || e.keyCode > 40))
 			return true;
-		var forbiddenTargets = ['INPUT','BUTTON','SELECT','TEXTAREA'];
-		var elementIsForbidden = (forbiddenTargets.indexOf(e.target.nodeName) > -1);
-		var elementIsEditable = e.target.isContentEditable;
-		return !(elementIsForbidden || elementIsEditable);
+		if (['INPUT','BUTTON','SELECT','TEXTAREA'].indexOf(e.target.nodeName) > -1)
+			return false;
+		if (e.target.isContentEditable)
+			return false;
+		return true;
 	}
 	function showRecents() {
 		if (document.getElementById('cksto_recents')) {

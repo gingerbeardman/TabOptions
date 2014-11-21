@@ -197,7 +197,7 @@ function handleHotkey(match, toolbarVisible, srcTab) {
 			var tabNum = match.num;
 			if (tabNum == -1)
 				tabNum = 9;
-			thisWindow.tabs[tabNum].activate();
+			thisWindow.tabs[tabNum] && thisWindow.tabs[tabNum].activate();
 			break;
 		case 'toggleTab':
 			focusLastTab(1);
