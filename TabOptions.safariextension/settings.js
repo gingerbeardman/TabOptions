@@ -392,13 +392,32 @@ function handleMessage(msg) {
 		case 'receiveSettings':
 			var settings = msg.message;
 			for (var key in settings) {
-				var i = document.querySelector('input[name="'+ key +'"][value="'+ settings[key] +'"]');
-				i && (i.checked = true);
+				if (key == 'mapNumbersToTabs') {
+					if (settings.mapNumbersToTabs) {
+						document.querySelector('input[name="mapNumbersToTabs"]').checked = true;
+						[].slice.call(document.querySelectorAll('#mntModifiers label')).forEach(function (label) {
+							label.className = '';
+						});
+						[].slice.call(document.querySelectorAll('#mntModifiers input')).forEach(function (input) {
+							input.disabled = false;
+						});
+					}
+				}
+				else if (key == 'mntModifiers') {
+					var mntMods = settings.mntModifiers;
+					for (key in mntMods) {
+						document.querySelector('input[name="mntModifiers"][id="'+ key +'"]').checked = mntMods[key];
+					}
+				} 
+				else {
+					var i = document.querySelector('input[name="'+ key +'"][value="'+ settings[key] +'"]');
+					i && (i.checked = true);
+				}
 			}
-			if (settings.preserveLastTab !== undefined) {
+			if ('preserveLastTab' in settings) {
 				document.querySelector('input[name="homeUrl"]').disabled = (settings.preserveLastTab !== 2);
 			}
-			if (settings.homeUrl !== undefined) {
+			if ('homeUrl' in settings) {
 				document.querySelector('input[name="homeUrl"]').value = settings.homeUrl;
 			}
 			document.addEventListener('change', handleSettingChange, false);
@@ -413,18 +432,47 @@ function handleMessage(msg) {
 	}
 }
 function handleSettingChange(e) {
-	var inputs, value, name = e.target.name;
+	var value, name = e.target.name;
 	switch (name) {
+		case 'mntModifiers':
+			var mntModifiers = {};
+			var modKeys = ['altKey','ctrlKey','metaKey','shiftKey'];
+			modKeys.forEach(function (key) {
+				mntModifiers[key] = document.getElementById(key).checked * 1;
+			});
+			if (modKeys.every(function (key) { return !mntModifiers[key] })) {
+				e.target.click();
+				e.target.checked = true;
+				document.querySelector('#mntModWarning').style.display = 'block';
+				window.setTimeout(function () {
+					document.querySelector('#mntModWarning').style.display = 'none';
+				}, 3500);
+				return;
+			} 
+			safari.self.tab.dispatchMessage('saveSetting', { key: name, value: mntModifiers });
+			return;
+		case 'mapNumbersToTabs':
+			var mntModLabels = [].slice.call(document.querySelectorAll('#mntModifiers label'));
+			var mntModInputs = [].slice.call(document.querySelectorAll('#mntModifiers input'));
+			var checked = document.querySelector('input[name="mapNumbersToTabs"]').checked;
+			if (checked) {
+				mntModLabels.forEach(function (label) { label.className = '' });
+				mntModInputs.forEach(function (input) { input.disabled = false });
+			} else {
+				mntModLabels.forEach(function (label) { label.className = 'disabled' });
+				mntModInputs.forEach(function (input) { input.disabled = true });
+			} 
+			value = checked;
+			break;
 		case 'preserveLastTab':
 			value = getRadioValue(name) * 1;
 			document.querySelector('input[name="homeUrl"]').disabled = (value != '2');
-		break;
+			break;
 		case 'homeUrl':
 			value = document.querySelector('input[name="homeUrl"]').value;
-		break;
+			break;
 		default:
 			value = getRadioValue(name) * 1;
-		break;
 	}
 	safari.self.tab.dispatchMessage('saveSetting', { key: name, value: value });
 }
@@ -438,7 +486,7 @@ function initializeBlacklist() {
 function initializeOptions() {
 	safari.self.addEventListener('message', handleMessage, false);
 	safari.self.tab.dispatchMessage('passSettings', [
-		'newFgTabPosition','newBgTabPosition','focusTabOnClose','preserveLastTab','homeUrl'
+		'newFgTabPosition','newBgTabPosition','focusTabOnClose','preserveLastTab','homeUrl','mapNumbersToTabs','mntModifiers'
 	]);
 }
 function initializeHotkeys() {

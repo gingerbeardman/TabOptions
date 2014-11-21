@@ -81,6 +81,12 @@ h2 {
 .optionForm {
 	margin: 0.5em 0 0.5em 2em;
 }
+label.disabled {
+	color: darkGray;
+}
+input[name="mntModifier"] {
+	margin-left: 10px
+}
 .actionLabel {
 	margin-bottom: 0.5em;
 }
@@ -139,7 +145,7 @@ h2 {
 #tableHeaders {
 	height: 16px;
 	margin-bottom: 0px;
-	margin-left: 2px
+	margin-left: 2px;
 	font-weight: bold;
 }
 #tableHeaders span {

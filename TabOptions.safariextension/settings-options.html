@@ -60,5 +60,38 @@
 				</form>
 			</div>
 		</div>
+		<div class="row">
+			<div>
+				<h4 class="optionLabel">Map Number Keys to Tabs</h4>
+				<form id="mntForm" class="optionForm">
+					<label style="display: inline-block; margin-left: -1em;">
+						<input type="checkbox" name="mapNumbersToTabs">
+						When I press a number key with the selected modifier(s), switch to the corresponding tab
+					</label>
+					<div id="mntModifiers" style="margin-top: 5px;">
+						<label class="disabled">Modifier keys:</label>
+						<label class="disabled">
+							<input type="checkbox" name="mntModifiers" id="metaKey" disabled> Command
+						</label>
+						<label class="disabled">
+							<input type="checkbox" name="mntModifiers" id="altKey" disabled> Option
+						</label>
+						<label class="disabled">
+							<input type="checkbox" name="mntModifiers" id="ctrlKey" disabled> Control
+						</label>
+						<label class="disabled">
+							<input type="checkbox" name="mntModifiers" id="shiftKey" disabled> Shift
+						</label>
+					</div>
+					<div style="margin-top: 5px; font-size: 11px; color: gray;">
+						<strong>Note</strong>: the Command key cannot be used by itself because Command + number combinations
+						are used by Safari to open Favorites.
+					</div>
+					<div id="mntModWarning" style="margin-top: 5px; display: none;">
+						You must select at least one modifier.
+					</div>
+				</form>
+			</div>
+		</div>
 	</body>
 </html>

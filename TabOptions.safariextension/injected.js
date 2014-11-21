@@ -1,30 +1,37 @@
 (function () {
-	function eventMatchesHotkey(prop) {
-		return this.hotkey[prop] === this.event[prop];
-	}
-	function getMatchingHotkeyAction(e) {
-		var hotkeyMatchesEvent = function (p) {
-			return this[p] == e[p];
+	const MODIFIERS = ['altKey','ctrlKey','metaKey','shiftKey'];
+	const KEYPROPS = ['keyCode'].concat(MODIFIERS);
+	
+	function getMatchingHotkeyAction(keyEvt) {
+		var hotkeyMatchesEvent = function (prop) {
+			return this[prop] == keyEvt[prop];
 		}
-		var props = ['keyCode','altKey','ctrlKey','metaKey','shiftKey'];
 		for (var h, m, i = 0; i < hotkeys.length; i++) {
 			h = hotkeys[i];
-			if (props.every(hotkeyMatchesEvent, h)) {
-				return h.action;
+			if (KEYPROPS.every(hotkeyMatchesEvent, h)) {
+				return { action: h.action, params: null };
 			}
-		} return null;
+		}
+		if (settings.mapNumbersToTabs) {
+			if (keyEvt.keyCode >= 48 && keyEvt.keyCode <= 57) {
+				if (MODIFIERS.every(hotkeyMatchesEvent, settings.mntModifiers)) {
+					return { action: 'nthTab', num: keyEvt.keyCode - 49 }
+				}
+			}
+		}
+		return null;
 	}
 	function handleKeydown(e) {
-		var hid = getMatchingHotkeyAction(e);
-		if (hid && okayToDoHotkey(e)) {
+		var match = getMatchingHotkeyAction(e);
+		if (match && okayToDoHotkey(e)) {
 			e.preventDefault();
 			e.stopPropagation();
 			window.addEventListener('keypress', stopNextEvent, true);
 			window.addEventListener('keyup', stopNextEvent, true);
 			safari.self.tab.dispatchMessage('handleHotkey', {
-				hid  : hid,
-				tv   : window.toolbar.visible,
-				time : event.timeStamp
+				match : match,
+				tv    : window.toolbar.visible,
+				time  : event.timeStamp
 			});
 		}
 	}
@@ -126,11 +133,13 @@
 		safari.self.addEventListener('message', handleMessage, false);
 		if (safari.self instanceof SafariContentReader) {
 			setTimeout(function () {
-				safari.self.tab.dispatchMessage('passSettings', ['cycleModifier', 'pauseKey']);
+				var props = ['cycleModifier', 'mapNumbersToTabs', 'mntModifiers', 'pauseKey'];
+				safari.self.tab.dispatchMessage('passSettings', props);
 				safari.self.tab.dispatchMessage('passAllHotkeys');
 			}, 500);
 		} else {
-			safari.self.tab.dispatchMessage('passSettings', ['cycleModifier', 'pauseKey']);
+			var props = ['cycleModifier', 'mapNumbersToTabs', 'mntModifiers', 'pauseKey'];
+			safari.self.tab.dispatchMessage('passSettings', props);
 			safari.self.tab.dispatchMessage('passAllHotkeys');
 		}
 	}

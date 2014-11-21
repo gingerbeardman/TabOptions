@@ -163,17 +163,18 @@ function handleCommand(event) {
 		sa.activeBrowserWindow.openTab().url = se.baseURI + 'recents.html';
 	}
 }
-function handleHotkey(hid, toolbarVisible, srcTab) {
+function handleHotkey(match, toolbarVisible, srcTab) {
+	var action = match.action;
 	var thisWindow = sa.activeBrowserWindow;
 	var thisTab = thisWindow.activeTab;
 	var thisTabIndex = thisWindow.tabs.indexOf(thisTab);
-	var ntp = (hid == 'newBgTab') ? se.settings.newBgTabPosition : se.settings.newFgTabPosition;
+	var ntp = (action == 'newBgTab') ? se.settings.newBgTabPosition : se.settings.newFgTabPosition;
 	var newTabIndex = 
 		(ntp == 0) ? thisTabIndex           :
 		(ntp == 1) ? thisTabIndex + 1       :
 		(ntp == 2) ? thisWindow.tabs.length :
 		(ntp == 3) ? 0                      : undefined;
-	switch (hid) {
+	switch (action) {
 		case 'newTab':
 			thisWindow.openTab('foreground', newTabIndex);
 			break;
@@ -191,6 +192,12 @@ function handleHotkey(hid, toolbarVisible, srcTab) {
 			if (!prevTab)
 				prevTab = thisWindow.tabs[thisWindow.tabs.length - 1];
 			prevTab.activate();
+			break;
+		case 'nthTab':
+			var tabNum = match.num;
+			if (tabNum == -1)
+				tabNum = 9;
+			thisWindow.tabs[tabNum].activate();
 			break;
 		case 'toggleTab':
 			focusLastTab(1);
@@ -292,8 +299,8 @@ function handleHotkey(hid, toolbarVisible, srcTab) {
 			break;
 		default:
 			var places = JSON.parse(localStorage.places);
-			var url  = places[hid].url;
-			var tidx = places[hid].tidx;
+			var url  = places[action].url;
+			var tidx = places[action].tidx;
 			if (url.indexOf('javascript') === 0)
 				srcTab.page.dispatchMessage('loadUrl', url);
 			else {
@@ -326,14 +333,12 @@ function handleMessage(event) {
 	if (!listener) return;
 	switch (event.name) {
 		case 'handleHotkey':
-			// console.log('Hotkey id:' + event.message.hid + '; toolbar visible: ' + event.message.tv
-			//   + '; time: ' + event.message.time);
 			event.target.eventTime = event.target.eventTime || 0;
 			if (event.message.time > event.target.eventTime) {
-				handleHotkey(event.message.hid, event.message.tv, event.target);
+				handleHotkey(event.message.match, event.message.tv, event.target);
 				event.target.eventTime = event.message.time;
 			} 
-		break;
+			break;
 		case 'reopenClosedTab':
 			var tabIdMatches = function (tab) { return tab.id == this.message };
 			var closedTab = closedTabs.filter(tabIdMatches, event)[0];
@@ -341,29 +346,29 @@ function handleMessage(event) {
 			closedTab.url && (sa.activeBrowserWindow.openTab('background', closedTab.index).url = closedTab.url);
 			var closedTab2 = closedTabsWithImages.filter(tabIdMatches, event);
 			closedTab2 && closedTabsWithImages.splice(closedTabsWithImages.indexOf(closedTab2), 1);
-		break;
+			break;
 		case 'reopenClosedTabsWithIndexes':
 			var indexes = event.message;
 			console.log('indexes:', indexes);
-		break;
+			break;
 		case 'closeRecentsList':
 			listener.dispatchMessage('closeRecents');
-		break;
+			break;
 		case 'passBlackList':
 			listener.dispatchMessage('receiveBlackList', se.settings.blacklist);
-		break;
+			break;
 		case 'passAllHotkeys':
 			var blacklisted = se.settings.blacklist.some(function (pattern) {
 				return (new RegExp(pattern)).test(event.target.url);
 			});
 			!blacklisted && listener.dispatchMessage('receiveAllHotkeys', chainAllHotkeys());
-		break;
+			break;
 		case 'passRecents':
 			listener.dispatchMessage('receiveRecents', closedTabsWithImages);
-		break;
+			break;
 		case 'startScriptLoaded':
 			// event.target.startUrl = event.message;
-		break;
+			break;
 		case 'passSettings':
 			if (event.message) {
 				var response = {};
@@ -374,27 +379,29 @@ function handleMessage(event) {
 			} else {
 				listener.dispatchMessage('receiveSettings', se.settings);
 			}
-		break;
+			break;
 		case 'passSetting':
 			var message = { key: event.message, value: se.settings[event.message] };
 			listener.dispatchMessage('receiveSetting', message);
-		break;
+			break;
 		case 'saveSetting':
 			se.settings[event.message.key] = event.message.value;
-		break;
+			if (event.message.key == 'mapNumbersToTabs' || event.message.key == 'mntModifiers')
+				passSettingsToAllPages([event.message.key]);
+			break;
 		case 'passActionNames':
 			listener.dispatchMessage('receiveActionNames', friendlyNames);
-		break;
+			break;
 		case 'passActions':
 			listener.dispatchMessage('receiveActions', se.settings.actions);
-		break;
+			break;
 		case 'saveHotkey':
 			var mm = event.message;
 			var actions = se.settings.actions;
 			actions[mm.a][mm.i] = mm.h;
 			se.settings.actions = actions;
 			passHotkeysToAllPages();
-		break;
+			break;
 		case 'resetHotkey':
 			var hid = event.message;
 			var actions = se.settings.actions;
@@ -402,10 +409,10 @@ function handleMessage(event) {
 			se.settings.actions = actions;
 			passHotkeysToAllPages();
 			listener.dispatchMessage('receiveActions', actions);
-		break;
+			break;
 		case 'passPlaces':
 			listener.dispatchMessage('receivePlaces', JSON.parse(localStorage.places));
-		break;
+			break;
 		case 'savePlace':
 			var index = event.message.index;
 			var placeData = event.message.placeData;
@@ -418,7 +425,7 @@ function handleMessage(event) {
 			localStorage.places = JSON.stringify(places);
 			passHotkeysToAllPages();
 			listener.dispatchMessage('receivePlaces', places);
-		break;
+			break;
 		case 'savePlaceHotkey':
 			var mm = event.message;
 			var places = JSON.parse(localStorage.places);
@@ -427,7 +434,7 @@ function handleMessage(event) {
 			places[mm.i].hotkey = mm.h;
 			localStorage.places = JSON.stringify(places);
 			passHotkeysToAllPages();
-		break;
+			break;
 		case 'removePlace':
 			var places = JSON.parse(localStorage.places);
 			var index = event.message;
@@ -438,24 +445,24 @@ function handleMessage(event) {
 			localStorage.places = JSON.stringify(places);
 			passHotkeysToAllPages();
 			listener.dispatchMessage('receivePlaces', places);
-		break;
+			break;
 		case 'removeAllPlaces':
 			localStorage.places = JSON.stringify(getDefaultPlaces(true));
 			listener.dispatchMessage('receivePlaces', JSON.parse(localStorage.places));
 			passHotkeysToAllPages();
-		break;
+			break;
 		case 'sortPlacesBy':
 			var places = sortPlacesBy(JSON.parse(localStorage.places), event.message);
 			localStorage.places = JSON.stringify(places);
 			passHotkeysToAllPages();
 			listener.dispatchMessage('receivePlaces', places);
-		break;
+			break;
 		case 'pbExportPlaces':
 			pbPrimeForExport(event.target);
-		break;
+			break;
 		case 'pbImportPlaces':
 			pbImportPlaces(event.target);
-		break;
+			break;
 		case 'saveBlackList':
 			se.settings.blacklist = event.message;
 		break;
@@ -532,6 +539,21 @@ function passHotkeysToAllPages() {
 			var thisTab = thisWindow.tabs[j];
 			if (thisTab.page !== undefined) {
 				thisTab.page.dispatchMessage('receiveAllHotkeys', chainAllHotkeys());
+			}
+		}
+	}
+}
+function passSettingsToAllPages(keys) {
+	var i, message = {};
+	for (i = 0; i < keys.length; i++) {
+		message[keys[i]] = se.settings[keys[i]];
+	}
+	for (i in sa.browserWindows) {
+		var thisWindow = sa.browserWindows[i];
+		for (var j in thisWindow.tabs) {
+			var thisTab = thisWindow.tabs[j];
+			if (/^http/.test(thisTab.url) || thisTab.url == 'about:blank') {
+				thisTab.page.dispatchMessage('receiveSettings', message);
 			}
 		}
 	}
@@ -672,7 +694,7 @@ function sortPlacesBy(places, key) {
 function initializeSettings() {
 	var lastVersion = se.settings.lastVersion;
 	for (var key in defaults) {
-		if (se.settings[key] === undefined) {
+		if (!(key in se.settings)) {
 			se.settings[key] = defaults[key];
 		}
 	}
@@ -725,7 +747,7 @@ function initializeSettings() {
 			se.settings.actions = actions;
 		}
 	}
-	se.settings.lastVersion = 1037;
+	se.settings.lastVersion = 1045;
 }
 
 const defaults = {
@@ -758,6 +780,8 @@ const defaults = {
 	newBgTabPosition : -1,
 	focusTabOnClose  : -1,
 	preserveLastTab  : 0,
+	mapNumbersToTabs : true,
+	mntModifiers     : { altKey:0, ctrlKey:1, metaKey:0, shiftKey:0 },
 	blacklist        : [],
 	homeUrl          : 'http://www.google.com/',
 	backupSvc        : 'Delicious',
