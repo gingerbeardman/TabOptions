@@ -40,17 +40,15 @@ function doXHR(url, responseHandler) {
 	xhr.send(null);
 }
 function focusLastTab(i) {
-	var tabTracker = getTabTrackerForWindow(sa.activeBrowserWindow);
+	var tabTracker = getTabTrackerForWindow();
 	if (tabTracker.length > 1) {
 		if (i == 0) {
 			trackingPaused = true;
-			var tabTracker = getTabTrackerForWindow();
 			tabTracker.push(tabTracker.shift());
 			tabTracker[0].activate();
 		} else
 		if (i == -1) {
 			trackingPaused = true;
-			var tabTracker = getTabTrackerForWindow();
 			tabTracker.unshift(tabTracker.pop());
 			tabTracker[0].activate();
 		} else {
@@ -99,10 +97,22 @@ function getDefaultPlaces(makeEmpty) {
 }
 function getTabTrackerForWindow(win) {
 	win = win || sa.activeBrowserWindow;
-	if (!tabTrackers[win]) {
-		tabTrackers[win] = win.tabs.map(function (tab) { return tab });
+	var tabTracker = null;
+
+	for (var i = 0; i < tabTrackers.length; i++) {
+		if (tabTrackers[i].win === win) {
+			tabTracker = tabTrackers[i];
+			break;
+		}
 	}
-	return tabTrackers[win];
+
+	if (!tabTracker) {
+		tabTrackers.push({
+			win: win,
+			tabs: win.tabs.map(function (tab) { return tab })
+		});
+	}
+	return tabTracker.tabs;
 }
 function handleActivate(event) {
 	if (window.trackingPaused) {
@@ -492,7 +502,10 @@ function handleOpenTab(tab) {
 	return tab;
 }
 function handleOpenWin(win) {
-	tabTrackers[win] = win.tabs.map(handleOpenTab);
+	tabTrackers.push({
+		win: win,
+		tabs: win.tabs.map(handleOpenTab)
+	});
 }
 function handleSettingChange(event) {
 	if (event.newValue !== event.oldValue) {
@@ -507,7 +520,7 @@ function listRecentTabImages() {
 	}
 }
 function listTrackedTabs(win) {
-	tabTrackers[win || sa.activeBrowserWindow].forEach(function (tab, i) {
+	getTabTrackerForWindow(win || sa.activeBrowserWindow).forEach(function (tab, i) {
 		console.log(i + ':', tab.title);
 	});
 }
@@ -824,7 +837,7 @@ const newTabNavDelay = 50;
 var sa = safari.application;
 var se = safari.extension;
 var lastTabOpenTime = new Date();
-var tabTrackers = {};
+var tabTrackers = [];
 var openTabs = []; // to keep Safari from GCing tab objects
 var closedTabs = [];
 var closedTabsWithImages = [];
