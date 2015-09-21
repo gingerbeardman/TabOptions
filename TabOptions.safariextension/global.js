@@ -1,3 +1,99 @@
+const DEFAULTS = {
+	actions: {
+		newTab           : [{ keyCode: 84, keyIdentifier:'U+0054', altKey:0, ctrlKey:0, metaKey:0, shiftKey:0 }, {}, {}],
+		newBgTab         : [{ keyCode: 84, keyIdentifier:'U+0054', altKey:0, ctrlKey:0, metaKey:0, shiftKey:1 }, {}, {}],
+		nextTab          : [{ keyCode: 67, keyIdentifier:'U+0043', altKey:0, ctrlKey:0, metaKey:0, shiftKey:0 }, {}, {}],
+		prevTab          : [{ keyCode: 88, keyIdentifier:'U+0058', altKey:0, ctrlKey:0, metaKey:0, shiftKey:0 }, {}, {}],
+		toggleTab        : [{ keyCode: 90, keyIdentifier:'U+005A', altKey:0, ctrlKey:0, metaKey:0, shiftKey:0 }, {}, {}],
+		cycleTabsFwd     : [{ keyCode:  9, keyIdentifier:'U+0009', altKey:1, ctrlKey:0, metaKey:0, shiftKey:0 }, {}, {}],
+		cycleTabsRev     : [{ keyCode:  9, keyIdentifier:'U+0009', altKey:1, ctrlKey:0, metaKey:0, shiftKey:1 }, {}, {}],
+		closeTab         : [{ keyCode: 87, keyIdentifier:'U+0057', altKey:0, ctrlKey:0, metaKey:0, shiftKey:0 }, {}, {}],
+		closeLeftTabs    : [{ keyCode:188, keyIdentifier:'U+003C', altKey:0, ctrlKey:1, metaKey:0, shiftKey:1 }, {}, {}],
+		closeRightTabs   : [{ keyCode:190, keyIdentifier:'U+003E', altKey:0, ctrlKey:1, metaKey:0, shiftKey:1 }, {}, {}],
+		reopenTab        : [{ keyCode: 90, keyIdentifier:'U+005A', altKey:1, ctrlKey:0, metaKey:1, shiftKey:0 }, {}, {}],
+		showRecentTabs   : [{ keyCode: 84, keyIdentifier:'U+0054', altKey:1, ctrlKey:1, metaKey:1, shiftKey:0 }, {}, {}],
+		duplicateTab     : [{ keyCode: 84, keyIdentifier:'U+0054', altKey:1, ctrlKey:0, metaKey:0, shiftKey:0 }, {}, {}],
+		reloadTab        : [{ keyCode: 82, keyIdentifier:'U+0052', altKey:0, ctrlKey:0, metaKey:0, shiftKey:1 }, {}, {}],
+		moveTabRight     : [{ keyCode:190, keyIdentifier:'U+003E', altKey:0, ctrlKey:0, metaKey:0, shiftKey:1 }, {}, {}],
+		moveTabLeft      : [{ keyCode:188, keyIdentifier:'U+003C', altKey:0, ctrlKey:0, metaKey:0, shiftKey:1 }, {}, {}],
+		moveTabRightMost : [{ keyCode:190, keyIdentifier:'U+003E', altKey:1, ctrlKey:0, metaKey:0, shiftKey:0 }, {}, {}],
+		moveTabLeftMost  : [{ keyCode:188, keyIdentifier:'U+003C', altKey:1, ctrlKey:0, metaKey:0, shiftKey:0 }, {}, {}],
+		goBack           : [{ keyCode:  8, keyIdentifier:'U+0008', altKey:0, ctrlKey:0, metaKey:0, shiftKey:0 }, {}, {}],
+		goForward        : [{ keyCode:  8, keyIdentifier:'U+0008', altKey:0, ctrlKey:0, metaKey:0, shiftKey:1 }, {}, {}],
+		dupeBack         : [{ keyCode:  8, keyIdentifier:'U+0008', altKey:0, ctrlKey:0, metaKey:1, shiftKey:0 }, {}, {}],
+		dupeBgBack       : [{ keyCode:  8, keyIdentifier:'U+0008', altKey:0, ctrlKey:0, metaKey:1, shiftKey:1 }, {}, {}],
+		openSettings     : [{ keyCode:188, keyIdentifier:'U+003C', altKey:0, ctrlKey:0, metaKey:1, shiftKey:1 }, {}, {}]
+	},
+	newFgTabPosition : -1,
+	newBgTabPosition : -1,
+	focusTabOnClose  : -1,
+	preserveLastTab  : 0,
+	mapNumbersToTabs : true,
+	mntModifiers     : { altKey:0, ctrlKey:1, metaKey:0, shiftKey:0 },
+	blacklist        : [],
+	homeUrl          : 'http://www.google.com/',
+	backupSvc        : 'Delicious',
+	pauseKey         : {
+		keyCode       : 191,
+		keyIdentifier : "U+002F",
+		altKey        : false,
+		ctrlKey       : false,
+		metaKey       : false,
+		shiftKey      : false
+	}
+};
+const FRIENDLYNAMES = {
+	newTab           : 'Open New Tab',
+	newBgTab         : 'Open New Background Tab',
+	nextTab          : 'Switch to Right Tab',
+	prevTab          : 'Switch to Left Tab',
+	toggleTab        : 'Switch to Last Active Tab',
+	cycleTabsFwd     : 'Cycle Tabs Forward (in focus order)',
+	cycleTabsRev     : 'Cycle Tabs Reverse (in focus order)',
+	closeTab         : 'Close Tab',
+	closeLeftTabs    : 'Close Tabs to Left',
+	closeRightTabs   : 'Close Tabs to Right',
+	reopenTab        : 'Reopen Closed Tabs (one by one)',
+	showRecentTabs   : 'List Recently-Closed Tabs',
+	duplicateTab     : 'Duplicate Tab',
+	reloadTab        : 'Reload Tab',
+	moveTabRight     : 'Move Tab Right',
+	moveTabLeft      : 'Move Tab Left',
+	moveTabRightMost : 'Move Tab Rightmost',
+	moveTabLeftMost  : 'Move Tab Leftmost',
+	goBack           : 'Go Back',
+	goForward        : 'Go Forward',
+	dupeBack         : 'Copy to New Tab & Go Back',
+	dupeBgBack       : 'Copy to Background Tab & Go Back',
+	openSettings     : 'Open Tab Options Settings'
+};
+const NEWTABNAVDELAY = 50;
+
+var sa = safari.application;
+var se = safari.extension;
+var lastTabOpenTime = new Date();
+var openTabs = []; // to keep Safari from GCing tab objects
+var openWins = [];
+var closedTabs = [];
+var closedTabsWithImages = [];
+var tabImages = {};
+var winId = 0;
+var tabId = 0;
+var tabTimer = null;
+
+initializeSettings();
+deleteTabImages();
+
+sa.addEventListener('activate', handleActivate, true);
+sa.addEventListener('open', handleOpen, true);
+sa.addEventListener('close', handleClose, true);
+sa.addEventListener('command', handleCommand, false);
+sa.addEventListener('message', handleMessage, false);
+se.settings.addEventListener('change', handleSettingChange, false);
+se.addContentScriptFromURL(se.baseURI + 'injected.js', ['safari-reader://*/*'], null, true);
+
+setTimeout(function () { sa.browserWindows.forEach(handleOpenWin) }, 10);
+
 function Place(hotkey, name, url, tidx) {
 	this.hotkey = hotkey || {};
 	this.name   = name   || '';
@@ -40,7 +136,7 @@ function doXHR(url, responseHandler) {
 	xhr.send(null);
 }
 function focusLastTab(i) {
-	var tabTracker = getTabTrackerForWindow();
+	var tabTracker = sa.activeBrowserWindow.tabTracker;
 	if (tabTracker.length > 1) {
 		if (i == 0) {
 			trackingPaused = true;
@@ -76,7 +172,7 @@ function focusTabOnClose() {
 			}
 		break;
 		case 2:
-			var tabTracker = getTabTrackerForWindow(activeWindow);
+			var tabTracker = activeWindow.tabTracker;
 			tabTracker[0] && tabTracker[0].activate();
 		break;
 	}
@@ -95,25 +191,6 @@ function getDefaultPlaces(makeEmpty) {
 			shiftKey: true			
 		}, 'Google', 'http://www.google.com/', 1)];
 }
-function getTabTrackerForWindow(win) {
-	win = win || sa.activeBrowserWindow;
-	var tabTracker = null;
-
-	for (var i = 0; i < tabTrackers.length; i++) {
-		if (tabTrackers[i].win === win) {
-			tabTracker = tabTrackers[i];
-			break;
-		}
-	}
-
-	if (!tabTracker) {
-		tabTrackers.push({
-			win: win,
-			tabs: win.tabs.map(function (tab) { return tab })
-		});
-	}
-	return tabTracker.tabs;
-}
 function handleActivate(event) {
 	if (window.trackingPaused) {
 		trackingPaused = false;
@@ -122,7 +199,7 @@ function handleActivate(event) {
 	if (!(event.target instanceof SafariBrowserTab))
 		return;
 	var thisWindow = event.target.browserWindow;
-	var tabTracker = getTabTrackerForWindow(thisWindow);
+	var tabTracker = thisWindow.tabTracker;
 	var lati = tabTracker.indexOf(event.target);
 	if (lati > -1)
 		tabTracker.splice(lati, 1);
@@ -142,16 +219,18 @@ function handleClose(event) {
 			index : thisWindow.tabs.indexOf(thisTab)
 		};
 		openTabs.splice(openTabs.indexOf(thisTab), 1);
-		var tracker = getTabTrackerForWindow(thisWindow);
-		var lati = tracker.indexOf(thisTab);
+		var tabTracker = thisWindow.tabTracker;
+		var lati = tabTracker.indexOf(thisTab);
 		if (lati > -1) {
-			tracker.splice(lati, 1);
+			tabTracker.splice(lati, 1);
 		}
 		if (thisTab == sa.activeBrowserWindow.activeTab) {
 			focusTabOnClose();
 		}
 		closedTabs.push(tabRec);
-		(closedTabs.length > 1024) && closedTabs.shift();
+		if (closedTabs.length > 1024) {
+			closedTabs.shift();
+		}
 		var tabRec2 = JSON.parse(JSON.stringify(tabRec));
 		tabRec2.image = thisTab.imageUrl;
 		closedTabsWithImages.unshift(tabRec2);
@@ -160,14 +239,14 @@ function handleClose(event) {
 		}
 	} else 
 	if (event.target instanceof SafariBrowserWindow) {
-		// tabTrackers[event.target] && (delete tabTrackers[event.target]);
+		openWins.splice(openWins.indexOf(event.target), 1);
 	}
 }
 function handleCommand(event) {
 	if (event.command == 'openSettings') {
 		setTimeout(function () {
 			sa.activeBrowserWindow.openTab('foreground').url = se.baseURI + 'settings.html';
-		}, newTabNavDelay);
+		}, NEWTABNAVDELAY);
 	} else
 	if (event.command == 'listRecentTabs') {
 		sa.activeBrowserWindow.openTab().url = se.baseURI + 'recents.html';
@@ -258,7 +337,7 @@ function handleHotkey(match, toolbarVisible, srcTab) {
 			var newTab = thisWindow.openTab('foreground', newTabIndex);
 			setTimeout(function () {
 				newTab.url = srcTab.url;
-			}, newTabNavDelay);
+			}, NEWTABNAVDELAY);
 			break;
 		case 'reloadTab':
 			srcTab.page.dispatchMessage('reload');
@@ -292,20 +371,20 @@ function handleHotkey(match, toolbarVisible, srcTab) {
 			setTimeout(function () {
 				newTab.url = srcTab.url;
 				srcTab.page.dispatchMessage('goBack');
-			}, newTabNavDelay);
+			}, NEWTABNAVDELAY);
 			break;
 		case 'dupeBgBack':
 			var newTab = thisWindow.openTab('background', newTabIndex);
 			setTimeout(function () {
 				newTab.url = srcTab.url;
 				srcTab.page.dispatchMessage('goBack');
-			}, newTabNavDelay);
+			}, NEWTABNAVDELAY);
 			break;
 		case 'openSettings':
 			var newTab = thisWindow.openTab('foreground', newTabIndex);
 			setTimeout(function () {
 				newTab.url = se.baseURI + 'settings.html';
-			}, newTabNavDelay);
+			}, NEWTABNAVDELAY);
 			break;
 		default:
 			var places = JSON.parse(localStorage.places);
@@ -332,7 +411,7 @@ function handleHotkey(match, toolbarVisible, srcTab) {
 				}
 				setTimeout(function () {
 					target.url = url;
-				}, newTabNavDelay);
+				}, NEWTABNAVDELAY);
 			}
 		break;
 	}
@@ -400,7 +479,7 @@ function handleMessage(event) {
 				passSettingsToAllPages([event.message.key]);
 			break;
 		case 'passActionNames':
-			listener.dispatchMessage('receiveActionNames', friendlyNames);
+			listener.dispatchMessage('receiveActionNames', FRIENDLYNAMES);
 			break;
 		case 'passActions':
 			listener.dispatchMessage('receiveActions', se.settings.actions);
@@ -415,7 +494,7 @@ function handleMessage(event) {
 		case 'resetHotkey':
 			var hid = event.message;
 			var actions = se.settings.actions;
-			actions[hid] = defaults.actions[hid];
+			actions[hid] = DEFAULTS.actions[hid];
 			se.settings.actions = actions;
 			passHotkeysToAllPages();
 			listener.dispatchMessage('receiveActions', actions);
@@ -502,10 +581,8 @@ function handleOpenTab(tab) {
 	return tab;
 }
 function handleOpenWin(win) {
-	tabTrackers.push({
-		win: win,
-		tabs: win.tabs.map(handleOpenTab)
-	});
+	openWins.push(win);
+	win.tabTracker = win.tabs.map(handleOpenTab);
 }
 function handleSettingChange(event) {
 	if (event.newValue !== event.oldValue) {
@@ -519,11 +596,6 @@ function listRecentTabImages() {
 		console.log(key + ' (' + tabImages[key].length/1024 + 'K):', tabImages[key].slice(0, 80));
 	}
 }
-function listTrackedTabs(win) {
-	getTabTrackerForWindow(win || sa.activeBrowserWindow).forEach(function (tab, i) {
-		console.log(i + ':', tab.title);
-	});
-}
 function moveTabIntoPosition(tab) {
 	lastTabOpenTime = new Date();
 	var ntp = (tab == sa.activeBrowserWindow.activeTab) ? se.settings.newFgTabPosition : se.settings.newBgTabPosition;
@@ -531,7 +603,7 @@ function moveTabIntoPosition(tab) {
 		return;
 	var thisWindow = tab.browserWindow;
 	var thisTabIndex = thisWindow.tabs.indexOf(tab);
-	var lastActiveTab = getTabTrackerForWindow(thisWindow)[0];
+	var lastActiveTab = thisWindow.tabTracker[0];
 	if (!lastActiveTab) 
 		return;
 	var lastActiveTabIndex = thisWindow.tabs.indexOf(lastActiveTab);
@@ -706,9 +778,9 @@ function sortPlacesBy(places, key) {
 }
 function initializeSettings() {
 	var lastVersion = se.settings.lastVersion;
-	for (var key in defaults) {
+	for (var key in DEFAULTS) {
 		if (!(key in se.settings)) {
-			se.settings[key] = defaults[key];
+			se.settings[key] = DEFAULTS[key];
 		}
 	}
 	if (!localStorage.places)
@@ -736,9 +808,9 @@ function initializeSettings() {
 		}
 		if (lastVersion < 1030) {
 			var actions = se.settings.actions;
-			actions.toggleTab = defaults.actions.toggleTab;
-			actions.cycleTabsFwd = defaults.actions.cycleTabsFwd;
-			actions.cycleTabsRev = defaults.actions.cycleTabsRev;
+			actions.toggleTab = DEFAULTS.actions.toggleTab;
+			actions.cycleTabsFwd = DEFAULTS.actions.cycleTabsFwd;
+			actions.cycleTabsRev = DEFAULTS.actions.cycleTabsRev;
 			se.settings.actions = actions;
 			if (se.settings.focusTabOnClose == 0)
 				se.settings.focusTabOnClose = -1; else
@@ -749,112 +821,16 @@ function initializeSettings() {
 		}
 		if (lastVersion < 1034) {
 			var actions = se.settings.actions;
-			actions.closeLeftTabs = defaults.actions.closeLeftTabs;
-			actions.closeRightTabs = defaults.actions.closeRightTabs;
+			actions.closeLeftTabs = DEFAULTS.actions.closeLeftTabs;
+			actions.closeRightTabs = DEFAULTS.actions.closeRightTabs;
 			se.settings.actions = actions;
 		}
 		if (lastVersion < 1037) {
 			var actions = se.settings.actions;
-			actions.reopenTab = defaults.actions.reopenTab;
-			actions.showRecentTabs = defaults.actions.showRecentTabs;
+			actions.reopenTab = DEFAULTS.actions.reopenTab;
+			actions.showRecentTabs = DEFAULTS.actions.showRecentTabs;
 			se.settings.actions = actions;
 		}
 	}
 	se.settings.lastVersion = 1045;
 }
-
-const defaults = {
-	actions: {
-		newTab           : [{ keyCode: 84, keyIdentifier:'U+0054', altKey:0, ctrlKey:0, metaKey:0, shiftKey:0 }, {}, {}],
-		newBgTab         : [{ keyCode: 84, keyIdentifier:'U+0054', altKey:0, ctrlKey:0, metaKey:0, shiftKey:1 }, {}, {}],
-		nextTab          : [{ keyCode: 67, keyIdentifier:'U+0043', altKey:0, ctrlKey:0, metaKey:0, shiftKey:0 }, {}, {}],
-		prevTab          : [{ keyCode: 88, keyIdentifier:'U+0058', altKey:0, ctrlKey:0, metaKey:0, shiftKey:0 }, {}, {}],
-		toggleTab        : [{ keyCode: 90, keyIdentifier:'U+005A', altKey:0, ctrlKey:0, metaKey:0, shiftKey:0 }, {}, {}],
-		cycleTabsFwd     : [{ keyCode:  9, keyIdentifier:'U+0009', altKey:1, ctrlKey:0, metaKey:0, shiftKey:0 }, {}, {}],
-		cycleTabsRev     : [{ keyCode:  9, keyIdentifier:'U+0009', altKey:1, ctrlKey:0, metaKey:0, shiftKey:1 }, {}, {}],
-		closeTab         : [{ keyCode: 87, keyIdentifier:'U+0057', altKey:0, ctrlKey:0, metaKey:0, shiftKey:0 }, {}, {}],
-		closeLeftTabs    : [{ keyCode:188, keyIdentifier:'U+003C', altKey:0, ctrlKey:1, metaKey:0, shiftKey:1 }, {}, {}],
-		closeRightTabs   : [{ keyCode:190, keyIdentifier:'U+003E', altKey:0, ctrlKey:1, metaKey:0, shiftKey:1 }, {}, {}],
-		reopenTab        : [{ keyCode: 90, keyIdentifier:'U+005A', altKey:1, ctrlKey:0, metaKey:1, shiftKey:0 }, {}, {}],
-		showRecentTabs   : [{ keyCode: 84, keyIdentifier:'U+0054', altKey:1, ctrlKey:1, metaKey:1, shiftKey:0 }, {}, {}],
-		duplicateTab     : [{ keyCode: 84, keyIdentifier:'U+0054', altKey:1, ctrlKey:0, metaKey:0, shiftKey:0 }, {}, {}],
-		reloadTab        : [{ keyCode: 82, keyIdentifier:'U+0052', altKey:0, ctrlKey:0, metaKey:0, shiftKey:1 }, {}, {}],
-		moveTabRight     : [{ keyCode:190, keyIdentifier:'U+003E', altKey:0, ctrlKey:0, metaKey:0, shiftKey:1 }, {}, {}],
-		moveTabLeft      : [{ keyCode:188, keyIdentifier:'U+003C', altKey:0, ctrlKey:0, metaKey:0, shiftKey:1 }, {}, {}],
-		moveTabRightMost : [{ keyCode:190, keyIdentifier:'U+003E', altKey:1, ctrlKey:0, metaKey:0, shiftKey:0 }, {}, {}],
-		moveTabLeftMost  : [{ keyCode:188, keyIdentifier:'U+003C', altKey:1, ctrlKey:0, metaKey:0, shiftKey:0 }, {}, {}],
-		goBack           : [{ keyCode:  8, keyIdentifier:'U+0008', altKey:0, ctrlKey:0, metaKey:0, shiftKey:0 }, {}, {}],
-		goForward        : [{ keyCode:  8, keyIdentifier:'U+0008', altKey:0, ctrlKey:0, metaKey:0, shiftKey:1 }, {}, {}],
-		dupeBack         : [{ keyCode:  8, keyIdentifier:'U+0008', altKey:0, ctrlKey:0, metaKey:1, shiftKey:0 }, {}, {}],
-		dupeBgBack       : [{ keyCode:  8, keyIdentifier:'U+0008', altKey:0, ctrlKey:0, metaKey:1, shiftKey:1 }, {}, {}],
-		openSettings     : [{ keyCode:188, keyIdentifier:'U+003C', altKey:0, ctrlKey:0, metaKey:1, shiftKey:1 }, {}, {}]
-	},
-	newFgTabPosition : -1,
-	newBgTabPosition : -1,
-	focusTabOnClose  : -1,
-	preserveLastTab  : 0,
-	mapNumbersToTabs : true,
-	mntModifiers     : { altKey:0, ctrlKey:1, metaKey:0, shiftKey:0 },
-	blacklist        : [],
-	homeUrl          : 'http://www.google.com/',
-	backupSvc        : 'Delicious',
-	pauseKey         : {
-		keyCode       : 191,
-		keyIdentifier : "U+002F",
-		altKey        : false,
-		ctrlKey       : false,
-		metaKey       : false,
-		shiftKey      : false
-	}
-};
-const friendlyNames = {
-	newTab           : 'Open New Tab',
-	newBgTab         : 'Open New Background Tab',
-	nextTab          : 'Switch to Right Tab',
-	prevTab          : 'Switch to Left Tab',
-	toggleTab        : 'Switch to Last Active Tab',
-	cycleTabsFwd     : 'Cycle Tabs Forward (in focus order)',
-	cycleTabsRev     : 'Cycle Tabs Reverse (in focus order)',
-	closeTab         : 'Close Tab',
-	closeLeftTabs    : 'Close Tabs to Left',
-	closeRightTabs   : 'Close Tabs to Right',
-	reopenTab        : 'Reopen Closed Tabs (one by one)',
-	showRecentTabs   : 'List Recently-Closed Tabs',
-	duplicateTab     : 'Duplicate Tab',
-	reloadTab        : 'Reload Tab',
-	moveTabRight     : 'Move Tab Right',
-	moveTabLeft      : 'Move Tab Left',
-	moveTabRightMost : 'Move Tab Rightmost',
-	moveTabLeftMost  : 'Move Tab Leftmost',
-	goBack           : 'Go Back',
-	goForward        : 'Go Forward',
-	dupeBack         : 'Copy to New Tab & Go Back',
-	dupeBgBack       : 'Copy to Background Tab & Go Back',
-	openSettings     : 'Open Tab Options Settings'
-};
-const newTabNavDelay = 50;
-
-var sa = safari.application;
-var se = safari.extension;
-var lastTabOpenTime = new Date();
-var tabTrackers = [];
-var openTabs = []; // to keep Safari from GCing tab objects
-var closedTabs = [];
-var closedTabsWithImages = [];
-var tabImages = {};
-var winId = 0;
-var tabId = 0;
-var tabTimer = null;
-
-initializeSettings();
-deleteTabImages();
-
-sa.addEventListener('activate', handleActivate, true);
-sa.addEventListener('open', handleOpen, true);
-sa.addEventListener('close', handleClose, true);
-sa.addEventListener('command', handleCommand, false);
-sa.addEventListener('message', handleMessage, false);
-se.settings.addEventListener('change', handleSettingChange, false);
-se.addContentScriptFromURL(se.baseURI + 'injected.js', ['safari-reader://*/*'], null, true);
-
-setTimeout(function () { sa.browserWindows.forEach(handleOpenWin) }, 10);
