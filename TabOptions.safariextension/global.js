@@ -79,7 +79,6 @@ var closedTabsWithImages = [];
 var tabImages = {};
 var winId = 0;
 var tabId = 0;
-var tabTimer = null;
 
 initializeSettings();
 deleteTabImages();
@@ -563,16 +562,16 @@ function handleNavigate(event) {
 	});
 }
 function handleOpen(event) {
-	if (event.target instanceof SafariBrowserWindow && !tabTimer) {
-		handleOpenWin(event.target);
-	} else
 	if (event.target instanceof SafariBrowserTab) {
-		handleOpenTab(event.target);
+		var tab = event.target;
+		if (!tab.browserWindow.tabTracker) {
+			handleOpenWin(tab.browserWindow);
+		} else {
+			handleOpenTab(tab);
+		}
 	}
 }
 function handleOpenTab(tab) {
-	clearTimeout(tabTimer);
-	tabTimer = setTimeout(function () { tabTimer = null }, 99);
 	tab.id = tabId++;
 	openTabs.push(tab);
 	tab.addEventListener('navigate', handleNavigate, false);
@@ -582,6 +581,7 @@ function handleOpenTab(tab) {
 }
 function handleOpenWin(win) {
 	openWins.push(win);
+	lastTabOpenTime = new Date();
 	win.tabTracker = win.tabs.map(handleOpenTab);
 }
 function handleSettingChange(event) {
@@ -615,7 +615,9 @@ function moveTabIntoPosition(tab) {
 		         : lastActiveTabIndex + ntp;
 	if (newTabIndex == thisTabIndex) 
 		return;
-	thisWindow.insertTab(tab, newTabIndex);
+	setTimeout(function () {
+		thisWindow.insertTab(tab, newTabIndex);
+	}, 0);
 }
 function passHotkeysToAllPages() {
 	for (var i = 0; i < sa.browserWindows.length; i++) {
