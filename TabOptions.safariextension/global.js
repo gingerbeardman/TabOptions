@@ -79,6 +79,7 @@ var closedTabsWithImages = [];
 var tabImages = {};
 var winId = 0;
 var tabId = 0;
+var lastLinkClickTime, lastLinkClickTab;
 
 initializeSettings();
 deleteTabImages();
@@ -420,6 +421,10 @@ function handleMessage(event) {
 	var listener = (event.target instanceof SafariReader) ? event.target : event.target.page;
 	if (!listener) return;
 	switch (event.name) {
+		case 'linkClicked':
+			lastLinkClickTime = new Date();
+			lastLinkClickTab = event.target;
+			break;
 		case 'handleHotkey':
 			event.target.eventTime = event.target.eventTime || 0;
 			if (event.message.time > event.target.eventTime) {
@@ -572,8 +577,13 @@ function handleOpen(event) {
 	}
 }
 function handleOpenTab(tab) {
+	var timeSinceLastLinkClick = new Date() - lastLinkClickTime;
 	tab.id = tabId++;
 	openTabs.push(tab);
+	if (timeSinceLastLinkClick < 300) {
+		tab.parent = lastLinkClickTab;
+		console.log('tab from link click');
+	}
 	tab.addEventListener('navigate', handleNavigate, false);
 	if (new Date() - lastTabOpenTime >= 100)
 		moveTabIntoPosition(tab);
@@ -599,7 +609,7 @@ function listRecentTabImages() {
 function moveTabIntoPosition(tab) {
 	lastTabOpenTime = new Date();
 	var ntp = (tab == sa.activeBrowserWindow.activeTab) ? se.settings.newFgTabPosition : se.settings.newBgTabPosition;
-	if (ntp == -1) 
+	if (ntp == -1 || (ntp == 4 && tab.parent))
 		return;
 	var thisWindow = tab.browserWindow;
 	var thisTabIndex = thisWindow.tabs.indexOf(tab);
@@ -610,9 +620,10 @@ function moveTabIntoPosition(tab) {
 	if (lastActiveTabIndex == -1) 
 		return;
 	var newTabIndex = 
-		ntp == 3 ? 0 : 
-		ntp == 2 ? thisWindow.tabs.length  
-		         : lastActiveTabIndex + ntp;
+		  ntp == 3 ? 0
+		: ntp == 2 ? thisWindow.tabs.length
+		// : ntp == 4 ? (tab.parent ? thisWindow.tabs.indexOf(tab.parent) : thisWindow.tabs.length)
+		: lastActiveTabIndex + ntp;
 	if (newTabIndex == thisTabIndex) 
 		return;
 	setTimeout(function () {

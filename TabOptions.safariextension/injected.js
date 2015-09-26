@@ -2,6 +2,27 @@
 	const MODIFIERS = ['altKey','ctrlKey','metaKey','shiftKey'];
 	const KEYPROPS = ['keyCode'].concat(MODIFIERS);
 	
+	if (window.scriptLoaded) {
+		return;
+	}
+	var settings = {};
+	
+	if (!/^cks/.test(window.name)) {
+		safari.self.addEventListener('message', handleMessage, false);
+		if (safari.self instanceof SafariContentReader) {
+			setTimeout(function () {
+				var props = ['cycleModifier', 'mapNumbersToTabs', 'mntModifiers', 'pauseKey'];
+				safari.self.tab.dispatchMessage('passSettings', props);
+				safari.self.tab.dispatchMessage('passAllHotkeys');
+			}, 500);
+		} else {
+			var props = ['cycleModifier', 'mapNumbersToTabs', 'mntModifiers', 'pauseKey'];
+			safari.self.tab.dispatchMessage('passSettings', props);
+			safari.self.tab.dispatchMessage('passAllHotkeys');
+		}
+	}
+	window.scriptLoaded = true;
+	
 	function getMatchingHotkeyAction(keyEvt) {
 		var hotkeyMatchesEvent = function (prop) {
 			return this[prop] == keyEvt[prop];
@@ -79,6 +100,13 @@
 		}
 	}
 	function handleMousedown(mde) {
+		var node = mde.target;
+		if (node == document.documentElement) return;
+		while (node.href == undefined && node.parentNode)
+			node = node.parentNode;
+		if (node.href) {
+			safari.self.tab.dispatchMessage('linkClicked');
+		}
 		window.removeEventListener('keydown', handleKeydown, true);
 		window.addEventListener('mouseup', function onMouseup(mue) {
 			if (mue.button === mde.button) {
@@ -129,26 +157,4 @@
 		e.stopPropagation();
 		window.removeEventListener(e.type, stopNextEvent, true);
 	}
-	
-	if (window.scriptLoaded) {
-		return;
-	}
-	var settings = {};
-	// var keyListenerPaused = false;
-	
-	if (!/^cks/.test(window.name)) {
-		safari.self.addEventListener('message', handleMessage, false);
-		if (safari.self instanceof SafariContentReader) {
-			setTimeout(function () {
-				var props = ['cycleModifier', 'mapNumbersToTabs', 'mntModifiers', 'pauseKey'];
-				safari.self.tab.dispatchMessage('passSettings', props);
-				safari.self.tab.dispatchMessage('passAllHotkeys');
-			}, 500);
-		} else {
-			var props = ['cycleModifier', 'mapNumbersToTabs', 'mntModifiers', 'pauseKey'];
-			safari.self.tab.dispatchMessage('passSettings', props);
-			safari.self.tab.dispatchMessage('passAllHotkeys');
-		}
-	}
-	window.scriptLoaded = true;
 })();
