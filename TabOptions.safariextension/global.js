@@ -240,6 +240,11 @@ function handleClose(event) {
 	} else 
 	if (event.target instanceof SafariBrowserWindow) {
 		openWins.splice(openWins.indexOf(event.target), 1);
+		if (se.settings.preserveLastTab) {
+			var newWin = sa.openBrowserWindow();
+			var newTab = newWin.tabs[0];
+			newTab.url = (se.settings.preserveLastTab == 2) ? se.settings.homeUrl : 'about:blank';
+		}
 	}
 }
 function handleCommand(event) {
