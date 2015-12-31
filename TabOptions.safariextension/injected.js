@@ -53,13 +53,13 @@
 		if (match) {
 			e.preventDefault();
 			e.stopPropagation();
-			window.addEventListener('keypress', stopNextEvent, true);
-			window.addEventListener('keyup', stopNextEvent, true);
 			safari.self.tab.dispatchMessage('handleHotkey', {
 				match : match,
 				tv    : window.toolbar.visible,
 				time  : event.timeStamp
 			});
+			window.addEventListener('keypress', stopNextEvent, true);
+			window.addEventListener('keyup', stopNextEvent, true);
 		}
 	}
 	function handleMessage(msg) {
@@ -153,8 +153,12 @@
 		}, false);
 	}
 	function stopNextEvent(e) {
+		console.log('stopping:', e.type);
 		e.preventDefault();
 		e.stopPropagation();
 		window.removeEventListener(e.type, stopNextEvent, true);
+		if (e.type == 'keyup') {
+			window.removeEventListener('keypress', stopNextEvent, true);
+		}
 	}
 })();
