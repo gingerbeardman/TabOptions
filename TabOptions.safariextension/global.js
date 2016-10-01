@@ -188,7 +188,7 @@ function getDefaultPlaces(makeEmpty) {
 			altKey: false,
 			ctrlKey: false,
 			metaKey: false,
-			shiftKey: true			
+			shiftKey: true
 		}, 'Google', 'http://www.google.com/', 1)];
 }
 function handleActivate(event) {
@@ -237,13 +237,13 @@ function handleClose(event) {
 		if (closedTabsWithImages.length > 9) {
 			closedTabsWithImages.pop();
 		}
-	} else 
+	} else
 	if (event.target instanceof SafariBrowserWindow) {
 		openWins.splice(openWins.indexOf(event.target), 1);
 		if (se.settings.preserveLastTab) {
-			var newWin = sa.openBrowserWindow();
-			var newTab = newWin.tabs[0];
-			newTab.url = (se.settings.preserveLastTab == 2) ? se.settings.homeUrl : 'about:blank';
+			// var newWin = sa.openBrowserWindow();
+			// var newTab = newWin.tabs[0];
+			// newTab.url = (se.settings.preserveLastTab == 2) ? se.settings.homeUrl : 'about:blank';
 		}
 	}
 }
@@ -263,7 +263,7 @@ function handleHotkey(match, toolbarVisible, srcTab) {
 	var thisTab = thisWindow.activeTab;
 	var thisTabIndex = thisWindow.tabs.indexOf(thisTab);
 	var ntp = (action == 'newBgTab') ? se.settings.newBgTabPosition : se.settings.newFgTabPosition;
-	var newTabIndex = 
+	var newTabIndex =
 		(ntp == 0) ? thisTabIndex           :
 		(ntp == 1) ? thisTabIndex + 1       :
 		(ntp == 2) ? thisWindow.tabs.length :
@@ -435,7 +435,7 @@ function handleMessage(event) {
 			if (event.message.time > event.target.eventTime) {
 				handleHotkey(event.message.match, event.message.tv, event.target);
 				event.target.eventTime = event.message.time;
-			} 
+			}
 			break;
 		case 'reopenClosedTab':
 			var tabIdMatches = function (tab) { return tab.id == this.message };
@@ -619,17 +619,17 @@ function moveTabIntoPosition(tab) {
 	var thisWindow = tab.browserWindow;
 	var thisTabIndex = thisWindow.tabs.indexOf(tab);
 	var lastActiveTab = thisWindow.tabTracker[0];
-	if (!lastActiveTab) 
+	if (!lastActiveTab)
 		return;
 	var lastActiveTabIndex = thisWindow.tabs.indexOf(lastActiveTab);
-	if (lastActiveTabIndex == -1) 
+	if (lastActiveTabIndex == -1)
 		return;
-	var newTabIndex = 
+	var newTabIndex =
 		  ntp == 3 ? 0
 		: ntp == 2 ? thisWindow.tabs.length
 		// : ntp == 4 ? (tab.parent ? thisWindow.tabs.indexOf(tab.parent) : thisWindow.tabs.length)
 		: lastActiveTabIndex + ntp;
-	if (newTabIndex == thisTabIndex) 
+	if (newTabIndex == thisTabIndex)
 		return;
 	setTimeout(function () {
 		thisWindow.insertTab(tab, newTabIndex);
@@ -819,8 +819,8 @@ function initializeSettings() {
 				localStorage.places = JSON.stringify(getDefaultPlaces(false));
 			}
 			alert(
-				'Tab Options Safari Extension has been updated.\n\n' + 
-				'Due to major internal changes, all hotkeys have been reset to defaults. ' + 
+				'Tab Options Safari Extension has been updated.\n\n' +
+				'Due to major internal changes, all hotkeys have been reset to defaults. ' +
 				'The developer apologizes for the inconvenience.'
 			);
 		}
